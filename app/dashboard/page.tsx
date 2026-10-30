@@ -1,8 +1,7 @@
-import { fetchFromSpreadsheet } from "@/lib/spreadsheet";
+import { fetchFromSpreadsheet } from "../../lib/spreadsheet";
 import { Users, UserCheck, GraduationCap } from "lucide-react";
-import StatCard from "@/components/dashboard/StatCards";
-import StatistikKelasChart from "@/components/charts/StatistikKelasChart";
-
+import StatCard from "../../components/dashboard/StatCards";
+import StatistikKelasChart from "../../components/charts/StatistikKelasChart";
 // Definisi Tipe berdasarkan struktur data EMIS yang disimpan di Spreadsheet
 export interface Siswa {
   NISN: string;
