@@ -2,35 +2,25 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Hanya ambil token sesi dari cookies
-  const session = request.cookies.get('app_session')?.value;
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login');
+  // Hanya ambil path
+  const path = request.nextUrl.pathname;
 
-  // Jika tidak ada sesi dan bukan di halaman login, arahkan ke login
-  if (!session && !isAuthPage) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+  // Logging sederhana
+  console.log(`Middleware memproses: ${path}`);
 
-  // Jika sudah ada sesi tapi mencoba mengakses halaman login, arahkan ke dashboard
-  if (session && isAuthPage) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
-  // Biarkan request lain lewat
+  // Selalu izinkan akses untuk sementara
   return NextResponse.next();
 }
 
-// Konfigurasi matcher yang sangat spesifik untuk menghindari file statis dan API
 export const config = {
   matcher: [
     /*
-     * Match semua rute KECUALI:
-     * 1. /api/ (API routes)
-     * 2. /_next/ (Next.js internals)
-     * 3. /_static/ (statis files)
-     * 4. /favicon.ico, /sitemap.xml (file publik)
-     * 5. Ekstensi file publik seperti .svg, .png, .jpg
+     * Match semua request paths kecuali:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|_static|favicon.ico|.*\\.png|.*\\.svg|.*\\.jpg).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
