@@ -20,16 +20,16 @@ export default function StatistikKelasChart({ data }: { data: any[] }) {
   if (!chartData.length) return <div className="h-64 flex items-center justify-center">Belum ada data</div>;
 
   return (
-    <div className="h-80 w-full mt-4">
+    <div className="h-72 w-full mt-4">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-          <XAxis dataKey="nama" axisLine={false} tickLine={false} dy={10} />
-          <YAxis axisLine={false} tickLine={false} />
-          <Tooltip cursor={{ fill: "#f8fafc" }} />
-          <Legend wrapperStyle={{ paddingTop: "20px" }} />
-          <Bar dataKey="LakiLaki" name="Laki-laki" fill="#6366f1" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="Perempuan" name="Perempuan" fill="#ec4899" radius={[4, 4, 0, 0]} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+          <XAxis dataKey="nama" axisLine={false} tickLine={false} dy={10} tick={{ fontSize: 12, fill: "#64748b" }} />
+          <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#64748b" }} />
+          <Tooltip cursor={{ fill: "#f1f5f9" }} contentStyle={{ borderRadius: "8px", border: "none" }} />
+          <Legend wrapperStyle={{ paddingTop: "20px" }} iconType="circle" />
+          <Bar dataKey="LakiLaki" name="Laki-laki" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={50} />
+          <Bar dataKey="Perempuan" name="Perempuan" fill="#ec4899" radius={[4, 4, 0, 0]} maxBarSize={50} />
         </BarChart>
       </ResponsiveContainer>
     </div>
