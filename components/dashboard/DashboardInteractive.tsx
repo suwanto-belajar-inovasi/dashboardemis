@@ -11,27 +11,28 @@ export default function DashboardInteractive({ data }: { data: any[] }) {
 
   // Kalkulasi Statistik
   const totalSiswa = data.length;
-  const siswaAktif = data.filter(s => s.Status?.toLowerCase() === "aktif").length;
-  const siswaLaki = data.filter(s => s.JenisKelamin?.toLowerCase() === "laki-laki").length;
+  const siswaAktif = data.filter(s => String(s.Status || "").toLowerCase() === "aktif").length;
+  const siswaLaki = data.filter(s => String(s.JenisKelamin || "").toLowerCase() === "laki-laki").length;
   const siswaPerempuan = totalSiswa - siswaLaki;
 
-  // Mendapatkan daftar kelas unik
+  // Mendapatkan daftar kelas unik (mencegah error jika data kosong)
   const daftarKelas = Array.from(
-    new Set(data.map(s => s.TingkatRombel ? s.TingkatRombel.split(" - ")[0] : "Lainnya"))
+    new Set(data.map(s => s.TingkatRombel ? String(s.TingkatRombel).split(" - ")[0] : "Lainnya"))
   ).sort();
 
-  // Memfilter siswa berdasarkan Kelas yang diklik DAN Pencarian (Nama/NISN)
+  // Memfilter siswa berdasarkan Kelas yang diklik DAN Pencarian (Nama/NISN/Kelas)
   const filteredStudents = useMemo(() => {
     let filtered = selectedKelas 
-      ? data.filter(s => (s.TingkatRombel ? s.TingkatRombel.split(" - ")[0] : "Lainnya") === selectedKelas)
+      ? data.filter(s => (s.TingkatRombel ? String(s.TingkatRombel).split(" - ")[0] : "Lainnya") === selectedKelas)
       : [];
 
     if (searchQuery.trim() !== "") {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         s => 
-          (s.NamaLengkap && s.NamaLengkap.toLowerCase().includes(query)) ||
-          (s.NISN && s.NISN.toString().includes(query))
+          String(s.NamaLengkap || "").toLowerCase().includes(query) ||
+          String(s.NISN || "").toLowerCase().includes(query) ||
+          String(s.TingkatRombel || "").toLowerCase().includes(query) // Tambahan pencarian Rombel/Kelas
       );
     }
     return filtered;
@@ -40,16 +41,25 @@ export default function DashboardInteractive({ data }: { data: any[] }) {
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       
-      {/* IDENTITAS MADRASAH */}
+      {/* IDENTITAS MADRASAH DENGAN LOGO BARU */}
       <div className="bg-white p-6 rounded-2xl border border-blue-100 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-blue-50 to-white">
-        <div>
-          <h2 className="text-xl font-bold text-blue-900 flex items-center gap-2">
-            <School className="text-blue-600" />
-            MIS BAITURRAHMAN GUBENG
-          </h2>
-          <div className="flex gap-4 mt-2 text-sm font-semibold text-slate-600">
-            <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-sm">NSM: 111235780024</span>
-            <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-sm">NPSN: 60720893</span>
+        <div className="flex items-center gap-4">
+          {/* Logo Madrasah (Menggunakan tag img standar agar tidak perlu config next.config.js) */}
+          <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-200 p-1 overflow-hidden shrink-0">
+            <img 
+              src="https://lh3.googleusercontent.com/d/1t_n8TT2eR1zOXUMctvJtdW_TZos4Iy0u" 
+              alt="Logo MIS Baiturrahman" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-blue-900 flex items-center gap-2">
+              MIS BAITURRAHMAN GUBENG
+            </h2>
+            <div className="flex flex-wrap gap-2 md:gap-4 mt-2 text-sm font-semibold text-slate-600">
+              <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-sm">NSM: 111235780024</span>
+              <span className="bg-white px-3 py-1 rounded-md border border-slate-200 shadow-sm">NPSN: 60720893</span>
+            </div>
           </div>
         </div>
         <div className="text-right">
@@ -68,7 +78,7 @@ export default function DashboardInteractive({ data }: { data: any[] }) {
         <StatCard title="Siswa Perempuan" value={siswaPerempuan} icon={GraduationCap} color="bg-pink-500" />
       </div>
 
-      {/* Area Grafik (Kiri: Batang Kelas, Kanan: Pie Gender) */}
+      {/* Area Grafik */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-2">
           <h2 className="text-lg font-bold text-slate-800">Distribusi Siswa per Tingkat</h2>
@@ -83,10 +93,10 @@ export default function DashboardInteractive({ data }: { data: any[] }) {
       {/* Area Pilihan Kelas & Tabel */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        {/* Navigasi Kelas (Kiri) */}
+        {/* Navigasi Kelas */}
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm lg:col-span-1 flex flex-col">
           <h2 className="text-lg font-bold text-slate-800 mb-4">Pilih Kelas</h2>
-          <div className="space-y-3 overflow-y-auto pr-1">
+          <div className="space-y-3 overflow-y-auto pr-1 max-h-[500px]">
             {daftarKelas.map((kelas, idx) => (
               <button
                 key={idx}
@@ -109,10 +119,10 @@ export default function DashboardInteractive({ data }: { data: any[] }) {
           </div>
         </div>
 
-        {/* Tabel Siswa (Kanan) */}
+        {/* Tabel Siswa */}
         <div className="lg:col-span-3">
           {selectedKelas ? (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-full flex flex-col">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden h-full flex flex-col min-h-[500px]">
               
               {/* Header Tabel & Input Pencarian */}
               <div className="bg-blue-600 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -128,14 +138,14 @@ export default function DashboardInteractive({ data }: { data: any[] }) {
                     </div>
                     <input
                       type="text"
-                      placeholder="Cari Nama atau NISN..."
+                      placeholder="Cari Nama, NISN, Rombel..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="block w-full pl-10 pr-3 py-2 border border-transparent rounded-lg leading-5 bg-blue-700 text-white placeholder-blue-300 focus:outline-none focus:bg-white focus:text-slate-900 focus:placeholder-slate-400 sm:text-sm transition-colors"
                     />
                   </div>
                   
-                  <button onClick={() => setSelectedKelas(null)} className="text-blue-100 hover:text-white bg-blue-700/80 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-blue-500">
+                  <button onClick={() => setSelectedKelas(null)} className="text-blue-100 hover:text-white bg-blue-700/80 px-3 py-2 rounded-lg text-sm font-medium transition-colors border border-blue-500 shrink-0">
                     Tutup
                   </button>
                 </div>
@@ -159,10 +169,11 @@ export default function DashboardInteractive({ data }: { data: any[] }) {
                         <tr key={idx} className="border-b border-slate-100 hover:bg-blue-50/50 transition-colors">
                           <td className="px-6 py-4 font-medium">{idx + 1}</td>
                           <td className="px-6 py-4 font-bold text-slate-900">{siswa.NamaLengkap || "-"}</td>
-                          <td className="px-6 py-4 font-mono text-slate-500">{siswa.NISN?.replace(/'/g, "") || "-"}</td>
+                          {/* Konversi ke String yang aman untuk mencegah error replace */}
+                          <td className="px-6 py-4 font-mono text-slate-500">{String(siswa.NISN || "-").replace(/'/g, "")}</td>
                           <td className="px-6 py-4 text-center">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${siswa.JenisKelamin?.toLowerCase() === 'laki-laki' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}`}>
-                              {siswa.JenisKelamin?.toLowerCase() === "laki-laki" ? "L" : "P"}
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${String(siswa.JenisKelamin || "").toLowerCase() === 'laki-laki' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}`}>
+                              {String(siswa.JenisKelamin || "").toLowerCase() === "laki-laki" ? "L" : "P"}
                             </span>
                           </td>
                           <td className="px-6 py-4 text-slate-500">{siswa.TingkatRombel || "-"}</td>
@@ -180,9 +191,10 @@ export default function DashboardInteractive({ data }: { data: any[] }) {
               </div>
             </div>
           ) : (
-            <div className="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 h-full min-h-[300px] flex flex-col items-center justify-center text-slate-400">
-              <School className="w-12 h-12 mb-3 text-slate-300" />
-              <p className="font-medium">Klik salah satu kelas di samping untuk melihat data siswa.</p>
+            <div className="bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 h-full min-h-[500px] flex flex-col items-center justify-center text-slate-400">
+              <School className="w-16 h-16 mb-4 text-slate-300" />
+              <p className="font-medium text-lg text-slate-500">Pilih Kelas</p>
+              <p className="text-sm mt-1">Klik salah satu kelas di samping kiri untuk menampilkan data siswa.</p>
             </div>
           )}
         </div>
