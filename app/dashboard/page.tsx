@@ -1,7 +1,7 @@
-import { fetchFromSpreadsheet } from "@/lib/spreadsheet";
+import { fetchFromSpreadsheet } from "../../lib/spreadsheet";
 import { Users, UserCheck, GraduationCap } from "lucide-react";
-import StatCard from "@/components/dashboard/StatCards";
-import StatistikKelasChart from "@/components/charts/StatistikKelasChart";
+import StatCard from "../../components/dashboard/StatCards";
+import StatistikKelasChart from "../../components/charts/StatistikKelasChart";
 
 export default async function DashboardPage() {
   let data: any[] = [];
