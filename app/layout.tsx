@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "./globals.css"; // Baris ini sangat penting untuk memanggil desain
 
 export const metadata: Metadata = {
   title: "Dashboard Pantauan EMIS",
