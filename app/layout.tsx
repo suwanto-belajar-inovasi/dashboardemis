@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import "./globals.css"; // Panggilan CSS
+import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Dashboard Pantauan EMIS",
@@ -13,7 +13,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body className="text-slate-900 bg-slate-50">{children}</body>
+      <body className="text-slate-800 bg-slate-50 min-h-screen">
+        {children}
+      </body>
     </html>
   );
 }
